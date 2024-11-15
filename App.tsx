@@ -6,30 +6,14 @@ import {useState, useRef, useEffect} from 'react';
 import {Gyroscope} from 'expo-sensors';
 
 export default function App() {
-  const gyroData = useRef({x: 0, y: 0, z: 0,});
-  const [data, setData] = useState(gyroData.current);
-  
+  const [data, setData] = useState({x: 0, y: 0, z: 0});
+  // const numX = useRef(0);
   useEffect(function(){
-    Gyroscope.setUpdateInterval(100);
-    Gyroscope.addListener((data)=>{
-      gyroData.current = {
-        x: data.x,
-        y: data.y,
-        z: data.z,
-      };
+    Gyroscope.setUpdateInterval(150);
+    Gyroscope.addListener(({x, y, z})=>{
+      setData({x: data.x + x, y: data.y + y, z: data.z + z,});
     });
-  
-  useEffect(function(){
-    const {x, y, z} = gyroData.current;
-    setData({
-      "x": x,
-      "y": y,
-      "z": z,
-    });
-  }, [gyroData.current.x]);
-
-  
-  });
+  }, []);
 
   return (
     <View style={styles.container}>
