@@ -18,7 +18,7 @@ export default function App() {
   useEffect(function(){
     Gyroscope.setUpdateInterval(150);
     Gyroscope.addListener(({x, y, z})=>{
-      setData({x: x, y: y, z: z,});
+      // setData({x: x, y: y, z: z,});
     });
     
     const sequence: SimonSaysActions[] = generateDirectionSequence(5);
@@ -30,44 +30,50 @@ export default function App() {
         setHighlightedDirection(null);
         return;
       }
+      if((interval + 1)%2 === 0){
+        setHighlightedDirection(null);
+        return;
+      }
       setHighlightedDirection(sequence[index]);
       index++;
     }, 1000);
   }, []);
 
   return (
-    <View style={styles.container}>
-      <View style={{flex: 1, width: "100%", alignItems: "center", justifyContent: "center", borderColor: "red", borderWidth: 2}}>
-        <Text style={{height: "10%", textAlign: "center", borderColor: "green", borderWidth: 2}}>Hello There!!{highlightedDirection}</Text>
-      </View>
-      
-      <StatusBar style="auto" />
-      
-      <View style={styles.directionParent}>
+    <SimonSaysContext.Provider value={highlightedDirection}>
+      <View style={styles.container}>
+        <View style={{flex: 1, width: "100%", alignItems: "center", justifyContent: "center", borderColor: "red", borderWidth: 2}}>
+          <Text style={{height: "10%", textAlign: "center", borderColor: "green", borderWidth: 2}}>Hello There!!{highlightedDirection}</Text>
+        </View>
         
-        {
-          Array.from({length: 3}, (_, row)=>(
-            <View key={row} style={{width: "100%", flex: 1, flexDirection: "row"}}>
-              {
-                Array.from({length: 3}, (_, col)=>(
-                  <View key={col} style={styles.gridItem}>
-                    {/* <Text>{row},{col}</Text> */}
-                    <SimonSaysContext.Provider value={highlightedDirection}>{generateImageFromRowCol(row, col)}</SimonSaysContext.Provider>
-                  </View>
-                ))
-              }
-            </View>
-          ))
-        }
+        <StatusBar style="auto" />
         
+        <View style={styles.directionParent}>
+          
+          {
+            Array.from({length: 3}, (_, row)=>(
+              <View key={row} style={{width: "100%", flex: 1, flexDirection: "row"}}>
+                {
+                  Array.from({length: 3}, (_, col)=>(
+                    <View key={col} style={styles.gridItem}>
+                      {/* <Text>{row},{col}</Text> */}
+                      {generateImageFromRowCol(row, col, highlightedDirection)}
+                    </View>
+                  ))
+                }
+              </View>
+            ))
+          }
+          
+        </View>
       </View>
-    </View>
+    </SimonSaysContext.Provider>
   );
 }
 
-function generateImageFromRowCol(row: number, col: number){
-  const selected = useContext(SimonSaysContext);
+function generateImageFromRowCol(row: number, col: number, selected: SimonSaysActions | null){
   console.log("render: " + row + "," + col);
+  console.log(selected);
   if(row === 0 && col === 1){
     const extraFeatureOnSelected = selected === SimonSaysActions.TILT_UP ? styles.imgFilter : {};
     return (<Image style={[styles.imgDirections, extraFeatureOnSelected]} source={require("./assets/up.png")}></Image>);  
@@ -107,15 +113,18 @@ const styles = StyleSheet.create({
   gridItem: {
     width: "33%",
     height: "100%",
+    alignItems: 'center',
+    justifyContent: 'center',
     borderWidth: 2,
     // borderColor: "black", 
     overflow: "hidden",
   },
   imgDirections: {
-    width: "100%",
-    height: "100%",
+    width: "70%",
+    height: "70%",
   },
   imgFilter: {
-    filter: "grayscale(80%)",
+    width: "100%",
+    height: "100%",
   },
 });
