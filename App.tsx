@@ -11,14 +11,32 @@ export default function App() {
   useEffect(function(){
     Gyroscope.setUpdateInterval(150);
     Gyroscope.addListener(({x, y, z})=>{
-      setData({x: data.x + x, y: data.y + y, z: data.z + z,});
+      setData({x: x, y: y, z: z,});
     });
   }, []);
 
   return (
     <View style={styles.container}>
-      <Text>{data.x}</Text>
-      <StatusBar style="auto" />
+      {/* <Text>{data.x}</Text> */}
+      {/* <StatusBar style="auto" /> */}
+      
+      <View style={styles.container}>
+        
+        {
+          Array.from({length: 3}, (_, row)=>(
+            <View key={row} style={{width: "100%", flexDirection: "row"}}>
+              {
+                Array.from({length: 3}, (_, col)=>(
+                  <View key={col} style={styles.gridItem}>
+                    <Text>{row},{col}</Text>
+                  </View>
+                ))
+              }
+            </View>
+          ))
+        }
+        
+      </View>
     </View>
   );
 }
@@ -29,5 +47,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+    // width: "100%",
+    borderColor: "blue",
+    borderWidth: 2,
+     
   },
+  gridItem: {
+    width: "33%",
+    height: 100,
+    borderWidth: 2,
+    borderColor: "black", 
+  }
 });
