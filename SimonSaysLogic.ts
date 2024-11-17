@@ -34,6 +34,7 @@ export class SimonSaysTest {
       this.isDone = true;
       return false;
     }
+    console.log("correct");
     if(++this.currentAnswerIndex >= this.order.length){this.isDone = true;}
     return true;
   }

@@ -3,27 +3,24 @@ import { StyleSheet, View, Text, Image, Pressable} from 'react-native';
 
 import {createContext, useContext, useState, useEffect, useRef} from 'react';
 
-import {Gyroscope, DeviceMotion} from 'expo-sensors';
 
 import {SimonSaysActions, SimonSaysTest} from './SimonSaysLogic';
+import {Initialize as InitializeTilt, addListener as addTiltListener} from "./DeviceTiltLogic";
+
 
 const SimonSaysContext = createContext<SimonSaysActions | null>(null);
-
 let animationPlaying = false;
 let currentGame = new SimonSaysTest(5);
 
 export default function App() {
-  const [data, setData] = useState({x: 0, y: 0, z: 0});
+  // const [rotation, setRotation] = useState({x: 0, y: 0, z: 0});
   const [highlightedDirection, setHighlightedDirection] = useState<SimonSaysActions | null>(null);
   // const animationPlaying = useRef<boolean>(false);
 
 
   useEffect(function(){
-    Gyroscope.setUpdateInterval(150);
-    Gyroscope.addListener(({x, y, z})=>{
-      // setData({x: x, y: y, z: z,});
-    });
-    
+    InitializeTilt();
+    addTiltListener(triggerAction);
     animationPlaying = true;
     const sequence: SimonSaysActions[] = currentGame.getOrder();
     let index = 0;
@@ -72,7 +69,6 @@ export default function App() {
 }
 
 function triggerAction(action: SimonSaysActions):void{
-  console.log(action);
   if(animationPlaying || currentGame.isTestDone()){return;}
   if(!currentGame.answerQuestion(action)){
     console.log("ded");
