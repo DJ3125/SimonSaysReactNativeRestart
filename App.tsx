@@ -1,18 +1,21 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, Text, Image} from 'react-native';
+import { StyleSheet, View, Text, Image, Pressable} from 'react-native';
 
-import {createContext, useContext, useState, useEffect} from 'react';
+import {createContext, useContext, useState, useEffect, useRef} from 'react';
 
-import {Gyroscope} from 'expo-sensors';
+import {Gyroscope, DeviceMotion} from 'expo-sensors';
 
-import {SimonSaysActions, generateDirectionSequence} from './SimonSaysLogic';
+import {SimonSaysActions, SimonSaysTest} from './SimonSaysLogic';
 
-const SimonSaysContext = createContext<SimonSaysActions|null>(null);
+const SimonSaysContext = createContext<SimonSaysActions | null>(null);
+
+let animationPlaying = false;
+let currentGame = new SimonSaysTest(5);
 
 export default function App() {
   const [data, setData] = useState({x: 0, y: 0, z: 0});
   const [highlightedDirection, setHighlightedDirection] = useState<SimonSaysActions | null>(null);
-  // const numX = useRef(0);
+  // const animationPlaying = useRef<boolean>(false);
 
 
   useEffect(function(){
@@ -21,17 +24,14 @@ export default function App() {
       // setData({x: x, y: y, z: z,});
     });
     
-    const sequence: SimonSaysActions[] = generateDirectionSequence(5);
-    // console.log(sequence);
+    animationPlaying = true;
+    const sequence: SimonSaysActions[] = currentGame.getOrder();
     let index = 0;
     const interval = window.setInterval(()=>{
       if(index >= sequence.length){
         window.clearInterval(interval);
         setHighlightedDirection(null);
-        return;
-      }
-      if((interval + 1)%2 === 0){
-        setHighlightedDirection(null);
+        animationPlaying = false;
         return;
       }
       setHighlightedDirection(sequence[index]);
@@ -71,24 +71,62 @@ export default function App() {
   );
 }
 
+function triggerAction(action: SimonSaysActions):void{
+  console.log(action);
+  if(animationPlaying || currentGame.isTestDone()){return;}
+  if(!currentGame.answerQuestion(action)){
+    console.log("ded");
+    return;
+  }
+  if(currentGame.isTestDone()){
+    console.log("win");
+  }
+}
+
+
 function generateImageFromRowCol(row: number, col: number, selected: SimonSaysActions | null){
-  console.log("render: " + row + "," + col);
-  console.log(selected);
+  // console.log("render: " + row + "," + col);
+  // console.log(selected);
   if(row === 0 && col === 1){
     const extraFeatureOnSelected = selected === SimonSaysActions.TILT_UP ? styles.imgFilter : {};
-    return (<Image style={[styles.imgDirections, extraFeatureOnSelected]} source={require("./assets/up.png")}></Image>);  
+    return (
+      <Pressable style={styles.imgContainer} onPress={()=>{triggerAction(SimonSaysActions.TILT_UP)}}>
+        <Image 
+          style={[styles.imgDirections, extraFeatureOnSelected]} 
+          source={require("./assets/up.png")}/>
+        
+      </Pressable>
+    );  
   }
   if(row === 1 && col === 2){
     const extraFeatureOnSelected = selected === SimonSaysActions.TILT_RIGHT ? styles.imgFilter : {};
-    return (<Image style={[styles.imgDirections, extraFeatureOnSelected]} source={require("./assets/right.png")}></Image>);
+    return (
+      <Pressable style={styles.imgContainer} onPress={()=>{triggerAction(SimonSaysActions.TILT_RIGHT)}}>
+        <Image 
+          style={[styles.imgDirections, extraFeatureOnSelected]} 
+          source={require("./assets/right.png")}/>
+      </Pressable>
+    );
   }
   if(row === 1 && col === 0){
     const extraFeatureOnSelected = selected === SimonSaysActions.TILT_LEFT ? styles.imgFilter : {};
-    return (<Image style={[styles.imgDirections, extraFeatureOnSelected]} source={require("./assets/left.png")}></Image>);
+    return (
+      <Pressable style={styles.imgContainer} onPress={()=>{triggerAction(SimonSaysActions.TILT_LEFT)}}>
+        <Image 
+          style={[styles.imgDirections, extraFeatureOnSelected]} 
+          source={require("./assets/left.png")}/>
+      </Pressable>
+    );
   }
   if(row === 2 && col === 1){
     const extraFeatureOnSelected = selected === SimonSaysActions.TILT_DOWN ? styles.imgFilter : {};
-    return (<Image style={[styles.imgDirections, extraFeatureOnSelected]} source={require("./assets/down.png")}></Image>);
+    return (
+      <Pressable style={styles.imgContainer} onPress={()=>{triggerAction(SimonSaysActions.TILT_DOWN)}}>
+        <Image 
+          style={[styles.imgDirections, extraFeatureOnSelected]} 
+          source={require("./assets/down.png")}/>
+      </Pressable>
+    );
   }
   return (<Image></Image>);
 }
@@ -116,9 +154,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    // borderColor: "black", 
     overflow: "hidden",
   },
+
+  imgContainer: {
+    height: "100%",
+    width: "100%",
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
   imgDirections: {
     width: "70%",
     height: "70%",
