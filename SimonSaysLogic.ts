@@ -41,4 +41,6 @@ export class SimonSaysTest {
 
   isTestDone(): boolean{return this.isDone;}
   getOrder(): SimonSaysActions[]{return this.order;}
+  getAmountAnsweredCorrect():number{return this.currentAnswerIndex;}
+  getTotalAmount():number{return this.order.length;}
 }

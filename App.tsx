@@ -3,44 +3,93 @@ import { StyleSheet, View, Text, Image, Pressable} from 'react-native';
 
 import {createContext, useContext, useState, useEffect, useRef} from 'react';
 
+import {Audio} from "expo-av";
 
 import {SimonSaysActions, SimonSaysTest} from './SimonSaysLogic';
 import {Initialize as InitializeTilt, addListener as addTiltListener} from "./DeviceTiltLogic";
 
+interface soundList {
+  correctAnswer: Audio.Sound| null,
+  correctRound: Audio.Sound| null,
+  wrongAnswer: Audio.Sound| null,
+}
+
+const sounds: soundList = {
+  correctAnswer: null,
+  correctRound: null,
+  wrongAnswer: null,
+}
 
 const SimonSaysContext = createContext<SimonSaysActions | null>(null);
-let animationPlaying = false;
+
+// const answeredContext = createContext<((x: number) => void | null>(null);
+
+let animationPlaying = true;
 let currentGame = new SimonSaysTest(5);
+
+function displayAnimation(setHighlightedDirection: (direction: SimonSaysActions | null) => void): void{
+  animationPlaying = true;
+  const sequence: SimonSaysActions[] = currentGame.getOrder();
+  let index = 0;
+  const interval = window.setInterval(()=>{
+    if(index >= sequence.length * 2 - 1){
+      window.clearInterval(interval);
+      setHighlightedDirection(null);
+      animationPlaying = false;
+      return;
+    }
+    if(index%2 === 1){
+      setHighlightedDirection(null);
+      index++;
+      return;
+    }
+    setHighlightedDirection(sequence[index/2]);
+    index++;
+  }, 1000);
+}
+
+async function playAudio(audio: Audio.Sound){
+  await audio.stopAsync();
+  await audio.playAsync();
+}
 
 export default function App() {
   // const [rotation, setRotation] = useState({x: 0, y: 0, z: 0});
   const [highlightedDirection, setHighlightedDirection] = useState<SimonSaysActions | null>(null);
+  // const [amountCorrect, setAmountCorrect] = useState(0);
   // const animationPlaying = useRef<boolean>(false);
 
 
   useEffect(function(){
     InitializeTilt();
     addTiltListener(triggerAction);
-    animationPlaying = true;
-    const sequence: SimonSaysActions[] = currentGame.getOrder();
-    let index = 0;
-    const interval = window.setInterval(()=>{
-      if(index >= sequence.length){
-        window.clearInterval(interval);
-        setHighlightedDirection(null);
-        animationPlaying = false;
-        return;
-      }
-      setHighlightedDirection(sequence[index]);
-      index++;
-    }, 1000);
+
+    Promise.all([
+      Audio.Sound.createAsync(require("./assets/correctRound.mp3")), 
+      Audio.Sound.createAsync(require("./assets/correct.mp3")), 
+      Audio.Sound.createAsync(require("./assets/wrong.mp3"))
+    ]).then(function(soundArray: {sound: Audio.Sound}[]){
+      sounds.correctAnswer = soundArray[1].sound;
+      sounds.correctRound = soundArray[0].sound;
+      sounds.wrongAnswer = soundArray[2].sound;
+      displayAnimation(setHighlightedDirection);
+    });
+
+    
   }, []);
 
   return (
     <SimonSaysContext.Provider value={highlightedDirection}>
       <View style={styles.container}>
-        <View style={{flex: 1, width: "100%", alignItems: "center", justifyContent: "center", borderColor: "red", borderWidth: 2}}>
-          <Text style={{height: "10%", textAlign: "center", borderColor: "green", borderWidth: 2}}>Hello There!!{highlightedDirection}</Text>
+        <View style={{flex: 1, width: "100%", alignItems: "center", justifyContent: "center"}}>
+          <Text style={{height: "10%", textAlign: "center"}}>{
+            // animationPlaying ? 
+              (highlightedDirection === 0 ? "Left":
+              highlightedDirection === 1 ? "Right":
+              highlightedDirection === 2 ? "Up":
+              highlightedDirection === 3 ? "Down": "")
+            // : `${} Out of ${currentGame.getTotalAmount()}` 
+          }</Text>
         </View>
         
         <StatusBar style="auto" />
@@ -72,11 +121,15 @@ function triggerAction(action: SimonSaysActions):void{
   if(animationPlaying || currentGame.isTestDone()){return;}
   if(!currentGame.answerQuestion(action)){
     console.log("ded");
+    playAudio(sounds.wrongAnswer as Audio.Sound);
     return;
   }
   if(currentGame.isTestDone()){
     console.log("win");
+    playAudio(sounds.correctRound as Audio.Sound);
+    return;
   }
+  playAudio(sounds.correctAnswer as Audio.Sound);
 }
 
 
@@ -86,42 +139,42 @@ function generateImageFromRowCol(row: number, col: number, selected: SimonSaysAc
   if(row === 0 && col === 1){
     const extraFeatureOnSelected = selected === SimonSaysActions.TILT_UP ? styles.imgFilter : {};
     return (
-      <Pressable style={styles.imgContainer} onPress={()=>{triggerAction(SimonSaysActions.TILT_UP)}}>
+      //<Pressable style={styles.imgContainer} onPress={()=>{triggerAction(SimonSaysActions.TILT_UP)}}>
         <Image 
           style={[styles.imgDirections, extraFeatureOnSelected]} 
           source={require("./assets/up.png")}/>
         
-      </Pressable>
+      //</Pressable>
     );  
   }
   if(row === 1 && col === 2){
     const extraFeatureOnSelected = selected === SimonSaysActions.TILT_RIGHT ? styles.imgFilter : {};
     return (
-      <Pressable style={styles.imgContainer} onPress={()=>{triggerAction(SimonSaysActions.TILT_RIGHT)}}>
+      //<Pressable style={styles.imgContainer} onPress={()=>{triggerAction(SimonSaysActions.TILT_RIGHT)}}>
         <Image 
           style={[styles.imgDirections, extraFeatureOnSelected]} 
           source={require("./assets/right.png")}/>
-      </Pressable>
+      //</Pressable>
     );
   }
   if(row === 1 && col === 0){
     const extraFeatureOnSelected = selected === SimonSaysActions.TILT_LEFT ? styles.imgFilter : {};
     return (
-      <Pressable style={styles.imgContainer} onPress={()=>{triggerAction(SimonSaysActions.TILT_LEFT)}}>
+      //<Pressable style={styles.imgContainer} onPress={()=>{triggerAction(SimonSaysActions.TILT_LEFT)}}>
         <Image 
           style={[styles.imgDirections, extraFeatureOnSelected]} 
           source={require("./assets/left.png")}/>
-      </Pressable>
+      //</Pressable>
     );
   }
   if(row === 2 && col === 1){
     const extraFeatureOnSelected = selected === SimonSaysActions.TILT_DOWN ? styles.imgFilter : {};
     return (
-      <Pressable style={styles.imgContainer} onPress={()=>{triggerAction(SimonSaysActions.TILT_DOWN)}}>
+      // <Pressable style={styles.imgContainer} onPress={()=>{triggerAction(SimonSaysActions.TILT_DOWN)}}>
         <Image 
           style={[styles.imgDirections, extraFeatureOnSelected]} 
           source={require("./assets/down.png")}/>
-      </Pressable>
+      //</Pressable> 
     );
   }
   return (<Image></Image>);
@@ -133,16 +186,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'center',
-    borderColor: "blue",
-    borderWidth: 2, 
+    // borderColor: "blue",
+    // borderWidth: 2, 
   },
   directionParent: {
     flex: 1,
     backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    borderColor: "blue",
-    borderWidth: 2,
+    // borderColor: "blue",
+    // borderWidth: 2,
   },
   gridItem: {
     width: "33%",
