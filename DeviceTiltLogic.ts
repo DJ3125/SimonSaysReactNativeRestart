@@ -11,7 +11,7 @@ enum DeviceTilt {
 
 let initialized: boolean = false;
 let currentTilt: DeviceTilt = DeviceTilt.CENTER;
-const listeners: ((action: SimonSaysActions)=>void)[] = [];
+let listeners: ((action: SimonSaysActions)=>void) | null;
 
 export function Initialize(): void{
   if(initialized){return;}
@@ -22,15 +22,13 @@ export function Initialize(): void{
     currentTilt = calculateTilt(beta, gamma);
     if(beforeTilt === currentTilt){return;}
     const simonSaysTilt = convertTiltToSimonSays(currentTilt);
-    if(simonSaysTilt === null){return;}
-    listeners.forEach(function(entry: (action: SimonSaysActions) => void){
-      entry(simonSaysTilt);
-    });
+    if(simonSaysTilt === null || listeners === null){return;}
+    listeners(simonSaysTilt);
   });
 }
 
 export function addListener(entry: (action: SimonSaysActions)=>void): void{
-  listeners.push(entry);
+  listeners = entry;
 }
 
 function calculateTilt(beta: number, gamma: number): DeviceTilt{
