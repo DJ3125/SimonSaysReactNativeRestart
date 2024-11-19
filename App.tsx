@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, Text, Image, Pressable} from 'react-native';
+import { StyleSheet, View, Text, Image} from 'react-native';
 
-import {createContext, useContext, useState, useEffect, useRef} from 'react';
+import {useState, useEffect} from 'react';
 
 import {Audio} from "expo-av";
 
@@ -20,7 +20,7 @@ const sounds: soundList = {
   wrongAnswer: null,
 }
 
-const SimonSaysContext = createContext<SimonSaysActions | null>(null);
+// const SimonSaysContext = createContext<SimonSaysActions | null>(null);
 
 // const answeredContext = createContext<((x: number) => void | null>(null);
 
@@ -79,7 +79,7 @@ export default function App() {
   }, []);
 
   return (
-    <SimonSaysContext.Provider value={highlightedDirection}>
+    // <SimonSaysContext.Provider value={highlightedDirection}>
       <View style={styles.container}>
         <View style={{flex: 1, width: "100%", alignItems: "center", justifyContent: "center"}}>
           <Text style={{height: "10%", textAlign: "center"}}>{
@@ -113,7 +113,7 @@ export default function App() {
           
         </View>
       </View>
-    </SimonSaysContext.Provider>
+    // </SimonSaysContext.Provider>
   );
 }
 
