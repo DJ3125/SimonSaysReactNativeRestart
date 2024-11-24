@@ -43,12 +43,7 @@ function displayAnimation(setHighlightedDirection: (direction: SimonSaysActions 
 }
 
 export default function SimonSaysScreen({navigation, route}: Props) {
-  // const [rotation, setRotation] = useState({x: 0, y: 0, z: 0});
   const [highlightedDirection, setHighlightedDirection] = useState<SimonSaysActions | null>(null);
-  // const [amountCorrect, setAmountCorrect] = useState(0);
-  // const animationPlaying = useRef<boolean>(false);
-
-
   useEffect(function(){
     InitializeTilt();
     addTiltListener(triggerAction);
@@ -58,7 +53,6 @@ export default function SimonSaysScreen({navigation, route}: Props) {
   }, []);
 
   return (
-    // <SimonSaysContext.Provider value={highlightedDirection}>
       <View style={styles.container}>
         <View style={{flex: 1, width: "100%", alignItems: "center", justifyContent: "center"}}>
           <Text style={{height: "10%", textAlign: "center"}}>{
@@ -71,17 +65,13 @@ export default function SimonSaysScreen({navigation, route}: Props) {
           }</Text>
         </View>
         
-        <StatusBar style="auto" />
-        
         <View style={styles.directionParent}>
-          
           {
             Array.from({length: 3}, (_, row)=>(
               <View key={row} style={{width: "100%", flex: 1, flexDirection: "row"}}>
                 {
                   Array.from({length: 3}, (_, col)=>(
                     <View key={col} style={styles.gridItem}>
-                      {/* <Text>{row},{col}</Text> */}
                       {generateImageFromRowCol(row, col, highlightedDirection)}
                     </View>
                   ))
@@ -89,10 +79,8 @@ export default function SimonSaysScreen({navigation, route}: Props) {
               </View>
             ))
           }
-          
         </View>
       </View>
-    // </SimonSaysContext.Provider>
   );
 }
 
@@ -100,7 +88,6 @@ function triggerAction(action: SimonSaysActions):void{
   if(animationPlaying || currentGame.isTestDone()){return;}
   if(!currentGame.answerQuestion(action)){
     playAudio(sounds.wrongAnswer);
-    // if(navigationObject === null){throw "Navigation not initialized";}
     navigationObject.navigate("LoseScreen", {score: currentGame.getOrder().length - 1});
     return;
   }
@@ -108,7 +95,6 @@ function triggerAction(action: SimonSaysActions):void{
     console.log("win");
     playAudio(sounds.correctRound);
     navigationObject.navigate("WinScreen", {roundsCorrect: currentGame.getOrder().length});
-    // if(navigationObject === null){throw "Navigation not initialized";}
     return;
   }
   playAudio(sounds.correctAnswer);
@@ -116,47 +102,28 @@ function triggerAction(action: SimonSaysActions):void{
 
 
 function generateImageFromRowCol(row: number, col: number, selected: SimonSaysActions | null){
-  // console.log("render: " + row + "," + col);
-  // console.log(selected);
   if(row === 0 && col === 1){
-    const extraFeatureOnSelected = selected === SimonSaysActions.TILT_UP ? styles.imgFilter : {};
-    return (
-      //<Pressable style={styles.imgContainer} onPress={()=>{triggerAction(SimonSaysActions.TILT_UP)}}>
-        <Image 
-          style={[styles.imgDirections, extraFeatureOnSelected]} 
-          source={require("./assets/up.png")}/>
-        
-      //</Pressable>
+    return (<Image 
+      style={[styles.imgDirections, selected === SimonSaysActions.TILT_UP ? styles.imgFilter : {}]} 
+      source={require("./assets/up.png")}/>
     );  
   }
   if(row === 1 && col === 2){
-    const extraFeatureOnSelected = selected === SimonSaysActions.TILT_RIGHT ? styles.imgFilter : {};
-    return (
-      //<Pressable style={styles.imgContainer} onPress={()=>{triggerAction(SimonSaysActions.TILT_RIGHT)}}>
-        <Image 
-          style={[styles.imgDirections, extraFeatureOnSelected]} 
-          source={require("./assets/right.png")}/>
-      //</Pressable>
+    return (<Image
+      style={[styles.imgDirections, selected === SimonSaysActions.TILT_RIGHT ? styles.imgFilter : {}]} 
+      source={require("./assets/right.png")}/>
     );
   }
   if(row === 1 && col === 0){
-    const extraFeatureOnSelected = selected === SimonSaysActions.TILT_LEFT ? styles.imgFilter : {};
-    return (
-      //<Pressable style={styles.imgContainer} onPress={()=>{triggerAction(SimonSaysActions.TILT_LEFT)}}>
-        <Image 
-          style={[styles.imgDirections, extraFeatureOnSelected]} 
-          source={require("./assets/left.png")}/>
-      //</Pressable>
+    return (<Image 
+      style={[styles.imgDirections, selected === SimonSaysActions.TILT_LEFT ? styles.imgFilter : {}]} 
+      source={require("./assets/left.png")}/>
     );
   }
   if(row === 2 && col === 1){
-    const extraFeatureOnSelected = selected === SimonSaysActions.TILT_DOWN ? styles.imgFilter : {};
-    return (
-      // <Pressable style={styles.imgContainer} onPress={()=>{triggerAction(SimonSaysActions.TILT_DOWN)}}>
-        <Image 
-          style={[styles.imgDirections, extraFeatureOnSelected]} 
-          source={require("./assets/down.png")}/>
-      //</Pressable> 
+    return (<Image 
+      style={[styles.imgDirections, selected === SimonSaysActions.TILT_DOWN ? styles.imgFilter : {}]} 
+      source={require("./assets/down.png")}/> 
     );
   }
   return (<Image></Image>);
@@ -168,16 +135,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'center',
-    // borderColor: "blue",
-    // borderWidth: 2, 
   },
   directionParent: {
     flex: 1,
     backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    // borderColor: "blue",
-    // borderWidth: 2,
   },
   gridItem: {
     width: "33%",
