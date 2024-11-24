@@ -3,7 +3,6 @@ import { StyleSheet, View, Text, Image} from 'react-native';
 
 import {useState, useEffect} from 'react';
 
-import {Audio} from "expo-av";
 
 import {SimonSaysActions, SimonSaysTest} from './SimonSaysLogic';
 import {Initialize as InitializeTilt, addListener as addTiltListener} from "./DeviceTiltLogic";
@@ -11,27 +10,12 @@ import {Initialize as InitializeTilt, addListener as addTiltListener} from "./De
 import {StackNavigationProp} from "@react-navigation/stack";
 import {RouteProp} from "@react-navigation/native";
 import {navTypes} from "./App";
+import {sounds, playAudio, onSoundsLoaded} from "./Sounds";
 
 type Props = {
   navigation: StackNavigationProp<navTypes, "GameScreen">,
   route: RouteProp<navTypes, "GameScreen">,
 }
-
-interface soundList {
-  correctAnswer: Audio.Sound| null,
-  correctRound: Audio.Sound| null,
-  wrongAnswer: Audio.Sound| null,
-}
-
-const sounds: soundList = {
-  correctAnswer: null,
-  correctRound: null,
-  wrongAnswer: null,
-}
-
-// const SimonSaysContext = createContext<SimonSaysActions | null>(null);
-
-// const answeredContext = createContext<((x: number) => void | null>(null);
 
 let animationPlaying = true;
 let currentGame: SimonSaysTest;
@@ -58,13 +42,6 @@ function displayAnimation(setHighlightedDirection: (direction: SimonSaysActions 
   }, 1000);
 }
 
-async function playAudio(audio: Audio.Sound){
-  await audio.stopAsync();
-  await audio.playAsync();
-}
-
-
-
 export default function SimonSaysScreen({navigation, route}: Props) {
   // const [rotation, setRotation] = useState({x: 0, y: 0, z: 0});
   const [highlightedDirection, setHighlightedDirection] = useState<SimonSaysActions | null>(null);
@@ -77,20 +54,7 @@ export default function SimonSaysScreen({navigation, route}: Props) {
     addTiltListener(triggerAction);
     navigationObject = navigation;
     currentGame = new SimonSaysTest(route.params.numQuestions);
-
-
-    Promise.all([
-      Audio.Sound.createAsync(require("./assets/correctRound.mp3")), 
-      Audio.Sound.createAsync(require("./assets/correct.mp3")), 
-      Audio.Sound.createAsync(require("./assets/wrong.mp3"))
-    ]).then(function(soundArray: {sound: Audio.Sound}[]){
-      sounds.correctAnswer = soundArray[1].sound;
-      sounds.correctRound = soundArray[0].sound;
-      sounds.wrongAnswer = soundArray[2].sound;
-      displayAnimation(setHighlightedDirection);
-    });
-
-    
+    onSoundsLoaded(()=> {displayAnimation(setHighlightedDirection);});    
   }, []);
 
   return (
@@ -135,19 +99,19 @@ export default function SimonSaysScreen({navigation, route}: Props) {
 function triggerAction(action: SimonSaysActions):void{
   if(animationPlaying || currentGame.isTestDone()){return;}
   if(!currentGame.answerQuestion(action)){
-    playAudio(sounds.wrongAnswer as Audio.Sound);
+    playAudio(sounds.wrongAnswer);
     // if(navigationObject === null){throw "Navigation not initialized";}
     navigationObject.navigate("LoseScreen", {score: currentGame.getOrder().length - 1});
     return;
   }
   if(currentGame.isTestDone()){
     console.log("win");
-    playAudio(sounds.correctRound as Audio.Sound);
+    playAudio(sounds.correctRound);
     navigationObject.navigate("WinScreen", {roundsCorrect: currentGame.getOrder().length});
     // if(navigationObject === null){throw "Navigation not initialized";}
     return;
   }
-  playAudio(sounds.correctAnswer as Audio.Sound);
+  playAudio(sounds.correctAnswer);
 }
 
 
