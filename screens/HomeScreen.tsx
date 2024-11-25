@@ -11,6 +11,7 @@ type Props = {
 }
 
 export default function HomeScreen({navigation, route}: Props){
+  // console.log("dfghjk");
   return (<View style={styles.container}>
     <Text>Hello {getCurrentUser().displayName ?? "Error Here"}</Text>
     <Text>Simon Says Game</Text>

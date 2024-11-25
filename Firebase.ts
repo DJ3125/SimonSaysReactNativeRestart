@@ -25,29 +25,36 @@ interface PlayerAttributes {
 
 function parseDoc(document: DocumentData): PlayerAttributes{
   if(document === null || document === undefined){throw "Doc is undefined";}
-  const id: string = document.data?.userID;
-  const streak: number = document.data()?.Streak ?? 0;
+  const id: string = document.data()?.userID;
+  const streak: number = document.data()?.largestStreak ?? 0;
   if(id === undefined){throw "User ID doesn't exist";}
   return {"userID": id, "largestStreak": streak};
 }
 
 export async function logIn(username: string, password: string): Promise<void>{
   const promise = signInWithEmailAndPassword(auth, username, password);
-  promise.then(function({user: uid}: UserCredential){
-    getDocs(query(collection(database, "Users"), where("UserID", "==", uid))).then(function(snap: QuerySnapshot){
+  promise.then(function({user: {uid: uidString}}: UserCredential){
+    console.log("docs");
+    getDocs(query(collection(database, "Users"), where("UserID", "==", uidString))).then(function(snap: QuerySnapshot){
       const docs = snap.docs;
+      console.log(docs);
       if(docs.length > 0){
-        userDoc = parseDoc(docs[1]);
+        userDoc = parseDoc(docs[0]);
         return;
       }
       addDoc(collection(database, "Users"), {
-        "UserID": uid,
-        "Streak": 0,
-      }).then(function(doc: DocumentData){
+        "userID": uidString,
+        "largestStreak": 0,
+      } as PlayerAttributes).then(function(doc: DocumentData){
         userDoc = parseDoc(doc);
+        console.log(userDoc);
+      }).catch(function(error){
+        console.log(error.message);
       });
+    }).catch(function(error){
+      console.log(error.message);
     });
-  });
+  }).catch(function(error){console.log(error.message);});
   return new Promise(function(resolve, reject){promise.then(()=>resolve(), ()=>reject());});
 }
 
@@ -64,9 +71,13 @@ export function signOutUser(): void{
 
 export function registerStreak(newStreak: number): void{
   if(userDoc === null){throw "UserDoc not initialized";}
-  const streak: number = userDoc.data()?.Streak ?? 0;
+  const streak: number = userDoc.largestStreak;
   if(streak >= newStreak){return;}
-  updateDoc(doc(database, "Users", getCurrentUser().uid), {"Streak": newStreak});
+  userDoc.largestStreak = newStreak;
+  updateDoc(doc(database, "Users", getCurrentUser().uid), {"largestStreak": newStreak});
 }
 
-export function getLargestStreak
+export function getLargestStreak(): number{
+  if(userDoc === null){throw "User Doc is not defined";}
+  return userDoc.largestStreak;
+}
