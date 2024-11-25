@@ -12,8 +12,6 @@ export const sounds: soundList = {
   wrongAnswer: null,
 }
 
-let finishedLoading = false;
-
 const soundPromises = Promise.all([
   Audio.Sound.createAsync(require("./assets/correctRound.mp3")), 
   Audio.Sound.createAsync(require("./assets/correct.mp3")), 
@@ -26,12 +24,6 @@ soundPromises.then(function(soundArray: {sound: Audio.Sound}[]){
   sounds.wrongAnswer = soundArray[2].sound;
 }, function(){
   console.log("Sounds Failed to Load");
-}).then(function(){
-  finishedLoading = true;
-  handlers.forEach(element => {
-    element();
-  });
-  while(handlers.length > 0){handlers.pop();}
 });
 
 export async function playAudio(audio: Audio.Sound | null){
@@ -40,9 +32,9 @@ export async function playAudio(audio: Audio.Sound | null){
   await audio.playAsync();
 }
 
-const handlers: (()=> void)[] = [];
+const proxyPromise = new Promise<void>(function(resolve, reject){
+  soundPromises.then(()=>resolve(), ()=>reject());
+});
 
-export function onSoundsLoaded(handler: (()=> void)):void{
-  if(finishedLoading){handler(); return;}
-  handlers.push(handler);
-}
+
+export function onSoundsLoaded():Promise<void>{return proxyPromise;}

@@ -4,13 +4,13 @@ import { StyleSheet, View, Text, Image} from 'react-native';
 import {useState, useEffect} from 'react';
 
 
-import {SimonSaysActions, SimonSaysTest} from './SimonSaysLogic';
-import {Initialize as InitializeTilt, addListener as addTiltListener} from "./DeviceTiltLogic";
+import {SimonSaysActions, SimonSaysTest} from '../SimonSaysLogic';
+import {Initialize as InitializeTilt, addListener as addTiltListener, removeListener as removeTiltListener} from "../DeviceTiltLogic";
 
 import {StackNavigationProp} from "@react-navigation/stack";
 import {RouteProp} from "@react-navigation/native";
-import {navTypes} from "./App";
-import {sounds, playAudio, onSoundsLoaded} from "./Sounds";
+import {navTypes} from "../App";
+import {sounds, playAudio, onSoundsLoaded} from "../Sounds";
 
 type Props = {
   navigation: StackNavigationProp<navTypes, "GameScreen">,
@@ -49,7 +49,7 @@ export default function SimonSaysScreen({navigation, route}: Props) {
     addTiltListener(triggerAction);
     navigationObject = navigation;
     currentGame = new SimonSaysTest(route.params.numQuestions);
-    onSoundsLoaded(()=> {displayAnimation(setHighlightedDirection);});    
+    onSoundsLoaded().then(()=> {displayAnimation(setHighlightedDirection);});
   }, []);
 
   return (
@@ -89,12 +89,14 @@ function triggerAction(action: SimonSaysActions):void{
   if(!currentGame.answerQuestion(action)){
     playAudio(sounds.wrongAnswer);
     navigationObject.navigate("LoseScreen", {score: currentGame.getOrder().length - 1});
+    removeTiltListener();
     return;
   }
   if(currentGame.isTestDone()){
     console.log("win");
     playAudio(sounds.correctRound);
     navigationObject.navigate("WinScreen", {roundsCorrect: currentGame.getOrder().length});
+    removeTiltListener();
     return;
   }
   playAudio(sounds.correctAnswer);
@@ -105,25 +107,25 @@ function generateImageFromRowCol(row: number, col: number, selected: SimonSaysAc
   if(row === 0 && col === 1){
     return (<Image 
       style={[styles.imgDirections, selected === SimonSaysActions.TILT_UP ? styles.imgFilter : {}]} 
-      source={require("./assets/up.png")}/>
+      source={require("../assets/up.png")}/>
     );  
   }
   if(row === 1 && col === 2){
     return (<Image
       style={[styles.imgDirections, selected === SimonSaysActions.TILT_RIGHT ? styles.imgFilter : {}]} 
-      source={require("./assets/right.png")}/>
+      source={require("../assets/right.png")}/>
     );
   }
   if(row === 1 && col === 0){
     return (<Image 
       style={[styles.imgDirections, selected === SimonSaysActions.TILT_LEFT ? styles.imgFilter : {}]} 
-      source={require("./assets/left.png")}/>
+      source={require("../assets/left.png")}/>
     );
   }
   if(row === 2 && col === 1){
     return (<Image 
       style={[styles.imgDirections, selected === SimonSaysActions.TILT_DOWN ? styles.imgFilter : {}]} 
-      source={require("./assets/down.png")}/> 
+      source={require("../assets/down.png")}/> 
     );
   }
   return (<Image></Image>);
@@ -150,14 +152,12 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     overflow: "hidden",
   },
-
   imgContainer: {
     height: "100%",
     width: "100%",
     alignItems: 'center',
     justifyContent: 'center',
   },
-
   imgDirections: {
     width: "70%",
     height: "70%",
