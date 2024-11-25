@@ -1,5 +1,5 @@
 import {initializeApp, FirebaseApp} from "firebase/app";
-import {getFirestore, collection, addDoc, Firestore, query, where, DocumentData, getDocs, QuerySnapshot, updateDoc, doc} from "firebase/firestore";
+import {getFirestore, collection, addDoc, Firestore, query, where, QueryDocumentSnapshot, getDocs, QuerySnapshot, updateDoc, doc} from "firebase/firestore";
 import {getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, UserCredential, Auth, User, onAuthStateChanged, signOut} from "firebase/auth";
 
 const firebaseConfig = {
@@ -23,7 +23,7 @@ interface PlayerAttributes {
   "largestStreak": number,
 }
 
-function parseDoc(document: DocumentData): PlayerAttributes{
+function parseDoc(document: QueryDocumentSnapshot): PlayerAttributes{
   if(document === null || document === undefined){throw "Doc is undefined";}
   const id: string = document.data()?.userID;
   const streak: number = document.data()?.largestStreak ?? 0;
@@ -35,7 +35,7 @@ export async function logIn(username: string, password: string): Promise<void>{
   const promise = signInWithEmailAndPassword(auth, username, password);
   promise.then(function({user: {uid: uidString}}: UserCredential){
     console.log("docs");
-    getDocs(query(collection(database, "Users"), where("UserID", "==", uidString))).then(function(snap: QuerySnapshot){
+    getDocs(query(collection(database, "Users"), where("userID", "==", uidString))).then(function(snap: QuerySnapshot){
       const docs = snap.docs;
       console.log(docs);
       if(docs.length > 0){
@@ -45,9 +45,8 @@ export async function logIn(username: string, password: string): Promise<void>{
       addDoc(collection(database, "Users"), {
         "userID": uidString,
         "largestStreak": 0,
-      } as PlayerAttributes).then(function(doc: DocumentData){
-        userDoc = parseDoc(doc);
-        console.log(userDoc);
+      } as PlayerAttributes).then(function(){
+        userDoc = {"userID": uidString, "largestStreak": 0};
       }).catch(function(error){
         console.log(error.message);
       });
