@@ -16,7 +16,20 @@ const app: FirebaseApp = initializeApp(firebaseConfig);
 const auth: Auth = getAuth(app);
 const database: Firestore = getFirestore(app);
 
-let userDoc: DocumentData | null = null;
+let userDoc: PlayerAttributes | null = null;
+
+interface PlayerAttributes {
+  "userID": string,
+  "largestStreak": number,
+}
+
+function parseDoc(document: DocumentData): PlayerAttributes{
+  if(document === null || document === undefined){throw "Doc is undefined";}
+  const id: string = document.data?.userID;
+  const streak: number = document.data()?.Streak ?? 0;
+  if(id === undefined){throw "User ID doesn't exist";}
+  return {"userID": id, "largestStreak": streak};
+}
 
 export async function logIn(username: string, password: string): Promise<void>{
   const promise = signInWithEmailAndPassword(auth, username, password);
@@ -24,14 +37,14 @@ export async function logIn(username: string, password: string): Promise<void>{
     getDocs(query(collection(database, "Users"), where("UserID", "==", uid))).then(function(snap: QuerySnapshot){
       const docs = snap.docs;
       if(docs.length > 0){
-        userDoc = docs[1];
+        userDoc = parseDoc(docs[1]);
         return;
       }
       addDoc(collection(database, "Users"), {
         "UserID": uid,
         "Streak": 0,
       }).then(function(doc: DocumentData){
-        userDoc = doc;
+        userDoc = parseDoc(doc);
       });
     });
   });
@@ -55,3 +68,5 @@ export function registerStreak(newStreak: number): void{
   if(streak >= newStreak){return;}
   updateDoc(doc(database, "Users", getCurrentUser().uid), {"Streak": newStreak});
 }
+
+export function getLargestStreak
