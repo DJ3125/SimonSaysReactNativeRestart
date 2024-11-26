@@ -1,12 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, Text, Image} from 'react-native';
-
 import {useState, useEffect} from 'react';
-
-
 import {SimonSaysActions, SimonSaysTest} from '../SimonSaysLogic';
 import {Initialize as InitializeTilt, addListener as addTiltListener, removeListener as removeTiltListener} from "../DeviceTiltLogic";
-
 import {StackNavigationProp} from "@react-navigation/stack";
 import {RouteProp} from "@react-navigation/native";
 import {navTypes} from "../App";

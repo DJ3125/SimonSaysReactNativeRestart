@@ -32,9 +32,8 @@ export async function playAudio(audio: Audio.Sound | null){
   await audio.playAsync();
 }
 
-const proxyPromise = new Promise<void>(function(resolve, reject){
-  soundPromises.then(()=>resolve(), ()=>reject());
-});
 
-
-export function onSoundsLoaded():Promise<void>{return proxyPromise;}
+export async function onSoundsLoaded():Promise<void>{
+  await soundPromises;
+  return Promise.resolve();
+}

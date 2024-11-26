@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, Button} from 'react-native';
 import {StackNavigationProp} from "@react-navigation/stack";
 import {RouteProp} from "@react-navigation/native";
 import {navTypes} from "../App";
-import {getCurrentUser} from "../Firebase";
+import {getUserAttributes} from "../Firebase";
 
 type Props = {
   navigation: StackNavigationProp<navTypes, "HomeScreen">,
@@ -11,9 +11,9 @@ type Props = {
 }
 
 export default function HomeScreen({navigation, route}: Props){
-  // console.log("dfghjk");
   return (<View style={styles.container}>
-    <Text>Hello {getCurrentUser().displayName ?? "Error Here"}</Text>
+    <Text>Hello {getUserAttributes().username}</Text>
+    <Text>Your largest streak is {getUserAttributes().largestStreak}</Text>
     <Text>Simon Says Game</Text>
     <Button title="StartGame" onPress={()=>{navigation.navigate("GameScreen", {numQuestions: 1});}}/>
   </View>);

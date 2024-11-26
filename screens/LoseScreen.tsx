@@ -1,8 +1,11 @@
 import { StyleSheet, View, Text, Button} from 'react-native';
 
+import {useEffect} from "react";
+
 import {StackNavigationProp} from "@react-navigation/stack";
 import {RouteProp} from "@react-navigation/native";
 import {navTypes} from "../App";
+import {registerStreak} from "../Firebase";
 
 type Props = {
   navigation: StackNavigationProp<navTypes, "LoseScreen">,
@@ -10,6 +13,9 @@ type Props = {
 }
 
 export default function LoseScreen({navigation, route}: Props){
+  useEffect(function(){
+    registerStreak(route.params.score);
+  }, []);
   return (<View style={styles.container}>
     <Text>You Lose!</Text>
     <Text>Streak: {route.params.score}</Text>
