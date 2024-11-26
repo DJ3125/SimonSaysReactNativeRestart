@@ -82,7 +82,8 @@ function updateAttributes<T extends keyof PlayerAttributes>(...pairs: attributeV
   const newObject = {...userDoc};
   for(let i: number = 0; i < pairs.length; i++){newObject[pairs[i].attribute] = pairs[i].value;}
   userDoc = newObject;
-  updateDoc(doc(database, collectionName, getCurrentUser().uid), newObject);
+  console.log(userDoc.largestStreak);
+  updateDoc(doc(database, collectionName, getCurrentUser().uid), newObject).catch(function(error){console.log(error.message);});
 }
 
 export async function getTopScorers(numMax: number): Promise<PlayerAttributes[]>{

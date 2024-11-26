@@ -35,6 +35,7 @@ export default function LoginScreen({navigation, route}: Props): JSX.Element{
         }}
       />
       <Button title="Log In" onPress={()=>{
+        setLoginProgress("Loading...");
         logIn(username, password).then(function(){
           setLoginProgress("Success");
           navigation.navigate("HomeScreen");
