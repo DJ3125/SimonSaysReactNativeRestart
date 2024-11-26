@@ -1,5 +1,5 @@
 import {initializeApp, FirebaseApp} from "firebase/app";
-import {getFirestore, collection, addDoc, Firestore, query, where, QueryDocumentSnapshot, getDocs, QuerySnapshot, updateDoc, doc} from "firebase/firestore";
+import {getFirestore, collection, addDoc, Firestore, query, where, QueryDocumentSnapshot, getDocs, QuerySnapshot, updateDoc, doc, orderBy, limit, DocumentData} from "firebase/firestore";
 import {getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, UserCredential, Auth, User, onAuthStateChanged, signOut} from "firebase/auth";
 
 const firebaseConfig = {
@@ -26,7 +26,7 @@ interface PlayerAttributes {
   "username": string,
 }
 
-function parseDoc(document: QueryDocumentSnapshot): PlayerAttributes{
+function parseDoc(document: QueryDocumentSnapshot<DocumentData, DocumentData>): PlayerAttributes{
   if(document === null || document === undefined){throw "Doc is undefined";}
   const id: string = document.data()?.userID;
   const streak: number = document.data()?.largestStreak ?? 0;
@@ -58,11 +58,12 @@ function getCurrentUser(): User{
 
 export async function signOutUser(): Promise<void>{return signOut(auth);}
 
-export function registerStreak(newStreak: number): void{
+export function registerStreak(newStreak: number): boolean{
   if(userDoc === null){throw "UserDoc not initialized";}
   const streak: number = userDoc.largestStreak;
-  if(streak >= newStreak){return;}
+  if(streak >= newStreak){return false;}
   updateAttributes({attribute: "largestStreak", value: newStreak});
+  return true;
 }
 
 export function getUserAttributes(): PlayerAttributes{
@@ -83,3 +84,12 @@ function updateAttributes<T extends keyof PlayerAttributes>(...pairs: attributeV
   userDoc = newObject;
   updateDoc(doc(database, collectionName, getCurrentUser().uid), newObject);
 }
+
+export async function getTopScorers(numMax: number): Promise<PlayerAttributes[]>{
+  const {docs}: QuerySnapshot = await getDocs(query(collection(database, collectionName), orderBy("largestStreak"), limit(numMax)));
+  const array: PlayerAttributes[] = [];
+  for(let i = 0; i < docs.length; i++){
+    array.push(parseDoc(docs[i]));
+  }
+  return Promise.resolve(array);
+} 

@@ -6,6 +6,7 @@ import SimonSaysScreen from "./screens/SimonSaysScreen";
 import WinScreen from "./screens/RoundWinScreen";
 import LoseScreen from "./screens/LoseScreen";
 import LoginScreen from "./screens/LoginScreen";
+import LeaderBoardScreen from "./screens/LeaderBoardScreen";
 
 export type navTypes = {
   GameScreen: {numQuestions: number},
@@ -13,6 +14,7 @@ export type navTypes = {
   WinScreen: {roundsCorrect: number},
   HomeScreen: undefined,
   LoginScreen: undefined,
+  LeaderBoardScreen: undefined;
 }
 
 const Stack = createStackNavigator<navTypes>();
@@ -40,7 +42,11 @@ export default function App() {
         <Stack.Screen
           name="LoseScreen"
           component={LoseScreen}
-          options={{headerShown: false}}/>    
+          options={{headerShown: false}}/>
+        <Stack.Screen
+          name="LeaderBoardScreen"
+          component={LeaderBoardScreen}
+          options={{headerShown: false}}/>      
       </Stack.Navigator>
     </NavigationContainer>
   );

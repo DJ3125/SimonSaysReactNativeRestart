@@ -1,11 +1,11 @@
 import { StyleSheet, View, Text, Button} from 'react-native';
 
-import {useEffect, useRef} from "react";
+import {useEffect, useState} from "react";
 
 import {StackNavigationProp} from "@react-navigation/stack";
 import {RouteProp} from "@react-navigation/native";
 import {navTypes} from "../App";
-import {registerStreak, getUserAttributes} from "../Firebase";
+import {registerStreak} from "../Firebase";
 
 type Props = {
   navigation: StackNavigationProp<navTypes, "LoseScreen">,
@@ -13,14 +13,13 @@ type Props = {
 }
 
 export default function LoseScreen({navigation, route}: Props){
-  const scoreBefore = useRef(0);
+  const [isNewHigh, setNewHigh] = useState(false);
   useEffect(function(){
-    scoreBefore.current = getUserAttributes().largestStreak;
-    registerStreak(route.params.score);
+    setNewHigh(registerStreak(route.params.score));
   }, []);
   return (<View style={styles.container}>
     <Text>You Lose!</Text>
-    <Text>Streak: {route.params.score} {}</Text>
+    <Text>Streak: {route.params.score}{isNewHigh ? ",\nIts a new High Score!!!": ""}</Text>
     <Button title="Retry" onPress={()=>{navigation.navigate("GameScreen", {numQuestions: 1});}}/>
     <Button title="Go Home" onPress={()=>{navigation.navigate("HomeScreen");}}/>
   </View>);
