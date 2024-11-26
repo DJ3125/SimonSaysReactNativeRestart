@@ -43,10 +43,10 @@ export async function logIn(username: string, password: string): Promise<void>{
     return Promise.resolve();
   }
   addDoc(collection(database, collectionName), {
-      "userID": uidString,
-      "largestStreak": 0,
-      "username": `User ${Math.random()}`
-    } as PlayerAttributes);
+    "userID": uidString,
+    "largestStreak": 0,
+    "username": `User ${Math.random()}`
+  } as PlayerAttributes);
   userDoc = {"userID": uidString, "largestStreak": 0, "username": `User ${Math.random()}`};
   return Promise.resolve();
 }
@@ -56,11 +56,7 @@ function getCurrentUser(): User{
   return auth.currentUser;
 }
 
-export function signOutUser(): void{
-  signOut(auth).catch(function(error){
-    throw error;
-  });
-}
+export async function signOutUser(): Promise<void>{return signOut(auth);}
 
 export function registerStreak(newStreak: number): void{
   if(userDoc === null){throw "UserDoc not initialized";}
