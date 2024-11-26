@@ -1,6 +1,6 @@
 import { StyleSheet, View, Text, Button} from 'react-native';
 
-import {useEffect, useState} from "react";
+import {useEffect, useState, JSX} from "react";
 
 import {StackNavigationProp} from "@react-navigation/stack";
 import {RouteProp} from "@react-navigation/native";
@@ -12,7 +12,7 @@ type Props = {
   route: RouteProp<navTypes, "LoseScreen">,
 }
 
-export default function LoseScreen({navigation, route}: Props){
+export default function LoseScreen({navigation, route}: Props): JSX.Element{
   const [isNewHigh, setNewHigh] = useState(false);
   useEffect(function(){
     setNewHigh(registerStreak(route.params.score));

@@ -1,6 +1,6 @@
 import {NavigationContainer} from "@react-navigation/native";
 import {createStackNavigator} from "@react-navigation/stack";
-
+import {JSX} from "react";
 import HomeScreen from "./screens/HomeScreen";
 import SimonSaysScreen from "./screens/SimonSaysScreen";
 import WinScreen from "./screens/RoundWinScreen";
@@ -19,7 +19,7 @@ export type navTypes = {
 
 const Stack = createStackNavigator<navTypes>();
 
-export default function App() {
+export default function App(): JSX.Element{
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="LoginScreen">

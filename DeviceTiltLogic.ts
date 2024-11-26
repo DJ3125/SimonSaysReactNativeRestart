@@ -31,7 +31,7 @@ export function addListener(entry: (action: SimonSaysActions)=>void): void{
   listeners = entry;
 }
 
-export function removeListener(){listeners = null;}
+export function removeListener(): void{listeners = null;}
 
 function calculateTilt(beta: number, gamma: number): DeviceTilt{
   const threshold = 0.7;

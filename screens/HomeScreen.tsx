@@ -1,5 +1,5 @@
 import { StyleSheet, View, Text, Button} from 'react-native';
-
+import {JSX} from "react";
 import {StackNavigationProp} from "@react-navigation/stack";
 import {RouteProp} from "@react-navigation/native";
 import {navTypes} from "../App";
@@ -10,7 +10,7 @@ type Props = {
   route: RouteProp<navTypes, "HomeScreen">
 }
 
-export default function HomeScreen({navigation, route}: Props){
+export default function HomeScreen({navigation, route}: Props): JSX.Element{
   return (<View style={styles.container}>
     <Text>Hello {getUserAttributes().username}</Text>
     <Text>Your largest streak is {getUserAttributes().largestStreak}</Text>

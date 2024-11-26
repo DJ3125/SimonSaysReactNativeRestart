@@ -5,7 +5,7 @@ export enum SimonSaysActions {
   TILT_DOWN,
 }
 
-function generateDirectionSequence(length: number): (SimonSaysActions[]){
+function generateDirectionSequence(length: number): SimonSaysActions[]{
   if(length <= 0){throw "IndexOutOfBounds";}
   const sequence: SimonSaysActions[] = [];
   const options: (keyof typeof SimonSaysActions)[] = Object.keys(SimonSaysActions).filter(key => isNaN(Number(key))) as (keyof typeof SimonSaysActions)[];

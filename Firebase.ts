@@ -20,7 +20,7 @@ const database: Firestore = getFirestore(app);
 
 let userDoc: PlayerAttributes | null = null;
 
-interface PlayerAttributes {
+export interface PlayerAttributes {
   "userID": string,
   "largestStreak": number,
   "username": string,

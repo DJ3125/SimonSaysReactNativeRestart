@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, Text, Image} from 'react-native';
-import {useState, useEffect} from 'react';
+import {useState, useEffect, JSX} from 'react';
 import {SimonSaysActions, SimonSaysTest} from '../SimonSaysLogic';
 import {Initialize as InitializeTilt, addListener as addTiltListener, removeListener as removeTiltListener} from "../DeviceTiltLogic";
 import {StackNavigationProp} from "@react-navigation/stack";
@@ -38,7 +38,7 @@ function displayAnimation(setHighlightedDirection: (direction: SimonSaysActions 
   }, 1000);
 }
 
-export default function SimonSaysScreen({navigation, route}: Props) {
+export default function SimonSaysScreen({navigation, route}: Props): JSX.Element{
   const [highlightedDirection, setHighlightedDirection] = useState<SimonSaysActions | null>(null);
   useEffect(function(){
     InitializeTilt();
@@ -99,7 +99,7 @@ function triggerAction(action: SimonSaysActions):void{
 }
 
 
-function generateImageFromRowCol(row: number, col: number, selected: SimonSaysActions | null){
+function generateImageFromRowCol(row: number, col: number, selected: SimonSaysActions | null): JSX.Element{
   if(row === 0 && col === 1){
     return (<Image 
       style={[styles.imgDirections, selected === SimonSaysActions.TILT_UP ? styles.imgFilter : {}]} 

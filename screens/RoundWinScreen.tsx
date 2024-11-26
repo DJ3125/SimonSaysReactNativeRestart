@@ -1,5 +1,5 @@
 import { StyleSheet, View, Text, Button} from 'react-native';
-
+import {JSX} from "react";
 import {StackNavigationProp} from "@react-navigation/stack";
 import {RouteProp} from "@react-navigation/native";
 import {navTypes} from "../App";
@@ -9,7 +9,7 @@ type Props = {
   route: RouteProp<navTypes, "WinScreen">,
 }
 
-export default function WinScreen({navigation, route}: Props){
+export default function WinScreen({navigation, route}: Props): JSX.Element{
   return (<View style={styles.container}>
     <Text>You Win!!</Text>
     <Text>You Have {route.params.roundsCorrect} wins!</Text>

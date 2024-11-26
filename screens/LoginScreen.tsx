@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useState, JSX} from 'react';
 import {StyleSheet, View, Text, TextInput, Button} from 'react-native';
 import {StackNavigationProp} from "@react-navigation/stack";
 import {RouteProp} from "@react-navigation/native";
@@ -10,7 +10,7 @@ type Props = {
   route: RouteProp<navTypes, "LoginScreen">,
 }
 
-export default function LoginScreen({navigation, route}: Props){
+export default function LoginScreen({navigation, route}: Props): JSX.Element{
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loginProgress, setLoginProgress] = useState("");
