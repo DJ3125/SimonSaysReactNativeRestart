@@ -52,7 +52,11 @@ export async function logIn(username: string, password: string): Promise<void>{
   return Promise.resolve();
 }
 
-export async function signOutUser(): Promise<void>{return signOut(auth);}
+export async function signOutUser(): Promise<void>{
+  await signOut(auth);
+  userDoc = null;
+  return Promise.resolve();
+}
 
 export function registerStreak(newStreak: number): boolean{
   if(userDoc === null){throw "UserDoc not initialized";}
