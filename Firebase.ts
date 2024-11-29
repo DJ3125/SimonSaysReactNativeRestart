@@ -24,6 +24,7 @@ export interface PlayerAttributes {
   "userID": string,
   "largestStreak": number,
   "username": string,
+  "docReference": string,
 }
 
 function parseDoc(document: QueryDocumentSnapshot<DocumentData, DocumentData>): PlayerAttributes{
@@ -32,7 +33,7 @@ function parseDoc(document: QueryDocumentSnapshot<DocumentData, DocumentData>): 
   const streak: number = document.data()?.largestStreak ?? 0;
   const username: string = document.data()?.username ?? `User ${Math.random()}`;
   if(id === undefined){throw "User ID doesn't exist";}
-  return {"userID": id, "largestStreak": streak, "username": username};
+  return {"userID": id, "largestStreak": streak, "username": username, "docReference": document.id};
 }
 
 export async function logIn(username: string, password: string): Promise<void>{
@@ -42,18 +43,13 @@ export async function logIn(username: string, password: string): Promise<void>{
     userDoc = parseDoc(docs[0]);
     return Promise.resolve();
   }
-  addDoc(collection(database, collectionName), {
+  const {id} = await addDoc(collection(database, collectionName), {
     "userID": uidString,
     "largestStreak": 0,
     "username": `User ${Math.random()}`
   } as PlayerAttributes);
-  userDoc = {"userID": uidString, "largestStreak": 0, "username": `User ${Math.random()}`};
+  userDoc = {"userID": uidString, "largestStreak": 0, "username": `User ${Math.random()}`, "docReference": id};
   return Promise.resolve();
-}
-
-function getCurrentUser(): User{
-  if(auth.currentUser === null){throw "Current User Is Null";}
-  return auth.currentUser;
 }
 
 export async function signOutUser(): Promise<void>{return signOut(auth);}
@@ -83,7 +79,12 @@ function updateAttributes<T extends keyof PlayerAttributes>(...pairs: attributeV
   for(let i: number = 0; i < pairs.length; i++){newObject[pairs[i].attribute] = pairs[i].value;}
   userDoc = newObject;
   console.log(userDoc.largestStreak);
-  updateDoc(doc(database, collectionName, getCurrentUser().uid), newObject).catch(function(error){console.log(error.message);});
+  const {userID, largestStreak, username} = userDoc;
+  updateDoc(doc(database, collectionName, userDoc.docReference), {
+    userID: userID,
+    largestStreak: largestStreak,
+    userDoc: userDoc
+  }).catch(function(error){console.log(error.message);});
 }
 
 export async function getTopScorers(numMax: number): Promise<PlayerAttributes[]>{
