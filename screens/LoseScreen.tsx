@@ -21,7 +21,8 @@ export default function LoseScreen({navigation, route}: Props): JSX.Element{
   return (<ScreenLayout>
     <View style={[centerStyle, innerContainerStyle]}>
       <Text>You Lose!</Text>
-      <Text>Streak: {route.params.score}{isNewHigh ? ",\nIts a new High Score!!!": ""}</Text>
+      <Text>Streak: {route.params.score}</Text>
+      <Text>{isNewHigh ? "Its a new High Score!!!": ""}</Text>
       <Button title="Retry" onPress={()=>{navigation.navigate("GameScreen", {numQuestions: 1});}}/>
       <Button title="Go Home" onPress={()=>{navigation.navigate("HomeScreen");}}/>
     </View>

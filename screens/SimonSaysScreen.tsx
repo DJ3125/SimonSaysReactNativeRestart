@@ -1,10 +1,10 @@
-import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, Text, Image} from 'react-native';
 import {useState, useEffect, JSX} from 'react';
 import {SimonSaysActions, SimonSaysTest} from '../SimonSaysLogic';
 import {Initialize as InitializeTilt, addListener as addTiltListener, removeListener as removeTiltListener} from "../DeviceTiltLogic";
 import {StackNavigationProp} from "@react-navigation/stack";
 import {RouteProp} from "@react-navigation/native";
+import ScreenLayout, {centerStyle, innerContainerStyle} from "../ScreenLayout";
 import {navTypes} from "../App";
 import {sounds, playAudio, onSoundsLoaded} from "../Sounds";
 
@@ -48,36 +48,66 @@ export default function SimonSaysScreen({navigation, route}: Props): JSX.Element
     onSoundsLoaded().then(()=> {displayAnimation(setHighlightedDirection);});
   }, []);
 
-  return (
-      <View style={styles.container}>
-        <View style={{flex: 1, width: "100%", alignItems: "center", justifyContent: "center"}}>
-          <Text style={{height: "10%", textAlign: "center"}}>{
-            // animationPlaying ? 
-              (highlightedDirection === 0 ? "Left":
-              highlightedDirection === 1 ? "Right":
-              highlightedDirection === 2 ? "Up":
-              highlightedDirection === 3 ? "Down": "")
-            // : `${} Out of ${currentGame.getTotalAmount()}` 
-          }</Text>
-        </View>
+  // return (
+  //     <View style={styles.container}>
+  //       <View style={{flex: 1, width: "100%", alignItems: "center", justifyContent: "center"}}>
+  //         <Text style={{height: "10%", textAlign: "center"}}>{
+  //           // animationPlaying ? 
+  //             (highlightedDirection === 0 ? "Left":
+  //             highlightedDirection === 1 ? "Right":
+  //             highlightedDirection === 2 ? "Up":
+  //             highlightedDirection === 3 ? "Down": "")
+  //           // : `${} Out of ${currentGame.getTotalAmount()}` 
+  //         }</Text>
+  //       </View>
         
-        <View style={styles.directionParent}>
-          {
-            Array.from({length: 3}, (_, row)=>(
-              <View key={row} style={{width: "100%", flex: 1, flexDirection: "row"}}>
-                {
-                  Array.from({length: 3}, (_, col)=>(
-                    <View key={col} style={styles.gridItem}>
-                      {generateImageFromRowCol(row, col, highlightedDirection)}
-                    </View>
-                  ))
-                }
-              </View>
-            ))
-          }
-        </View>
+  //       <View style={styles.directionParent}>
+  //         {
+  //           Array.from({length: 3}, (_, row)=>(
+  //             <View key={row} style={{width: "100%", flex: 1, flexDirection: "row"}}>
+  //               {
+  //                 Array.from({length: 3}, (_, col)=>(
+  //                   <View key={col} style={styles.gridItem}>
+  //                     {generateImageFromRowCol(row, col, highlightedDirection)}
+  //                   </View>
+  //                 ))
+  //               }
+  //             </View>
+  //           ))
+  //         }
+  //       </View>
+  //     </View>
+  // );
+  return (<ScreenLayout>
+    <>
+      <View style={[centerStyle, innerContainerStyle, {flex: 1, width: "100%"}]}>
+        <Text style={[innerContainerStyle, {height: "10%", textAlign: "center"}]}>{
+          // animationPlaying ? 
+            (highlightedDirection === 0 ? "Left":
+            highlightedDirection === 1 ? "Right":
+            highlightedDirection === 2 ? "Up":
+            highlightedDirection === 3 ? "Down": "")
+          // : `${} Out of ${currentGame.getTotalAmount()}` 
+        }</Text>
+        <Image source={require("../assets/stop.jpg")} style={{opacity: animationPlaying ? 1 : 0, height: "50%", width: "50%", marginTop: 20}}/>
       </View>
-  );
+      <View style={[styles.directionParent, innerContainerStyle]}>
+        {
+          Array.from({length: 3}, (_, row)=>(
+            <View key={row} style={{width: "100%", flex: 1, flexDirection: "row"}}>
+              {
+                Array.from({length: 3}, (_, col)=>(
+                  <View key={col} style={styles.gridItem}>
+                    {generateImageFromRowCol(row, col, highlightedDirection)}
+                  </View>
+                ))
+              }
+            </View>
+          ))
+        }
+      </View>
+    </>
+  </ScreenLayout>);
 }
 
 function triggerAction(action: SimonSaysActions):void{
@@ -115,7 +145,7 @@ function generateImageFromRowCol(row: number, col: number, selected: SimonSaysAc
   if(row === 1 && col === 0){
     return (<Image 
       style={[styles.imgDirections, selected === SimonSaysActions.TILT_LEFT ? styles.imgFilter : {}]} 
-      source={require("../assets/left.png")}/>
+      source={require("../assets/left2.png")}/>
     );
   }
   if(row === 2 && col === 1){
