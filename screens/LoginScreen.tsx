@@ -1,11 +1,12 @@
 import {useState, useRef, useEffect, JSX, memo} from 'react';
-import {StyleSheet, View, Text, TextInput, Button, Keyboard, Image} from 'react-native';
+import {StyleSheet, View, Text, TextInput, Button, Keyboard} from 'react-native';
 import {StackNavigationProp} from "@react-navigation/stack";
 import {RouteProp} from "@react-navigation/native";
 import Animated, {useSharedValue, useAnimatedStyle, withSpring, useAnimatedProps, withTiming, withSequence} from "react-native-reanimated";
 import Svg, {Text as SVGText} from "react-native-svg";
 import {navTypes} from "../App";
 import {logIn} from "../Firebase";
+import ScreenLayout, {centerStyle, innerContainerStyle} from "../ScreenLayout";
 
 type Props = {
   navigation: StackNavigationProp<navTypes, "LoginScreen">,
@@ -37,20 +38,34 @@ export default function LoginScreen({navigation, route}: Props): JSX.Element{
     setLoginProgress("");
     password.current = text;
   }
-
-  return(
-    <View style={{height: "100%", width: "100%", alignItems: 'center', justifyContent: 'center'}}>
-      <View style={styles.container}>  
+  return (
+    <ScreenLayout>
+      <View style={[innerContainerStyle, centerStyle]}>  
         <Title/>
         <UserTextInput placeholder="Username" onChangeText={usernameChanged}/>
         <UserTextInput placeholder="Password" onChangeText={passwordChanged}/>
         <Button title="Log In" onPress={login}/>
         <Text>{loginProgress}</Text>
       </View>
-      <Background/>
-    </View>
+    </ScreenLayout>
   );
 }
+
+// function loginComponent(username: MutableRefObject<string>, password: MutableRefObject<string>, setLoginProgress: (val:string)=>void, onSuccess:()=>void): JSX.Element{
+//   const login = function(){
+//     Keyboard.dismiss();
+//     setLoginProgress("Loading...");
+//     logIn(username.current, password.current).then(function(){
+//       setLoginProgress("Success");
+//       onSuccess();
+//     }).catch(function(){
+//       setLoginProgress("Error");
+//     });
+//   }
+//   return(<>
+//     <Button title="Log In" onPress={login}/>
+//   </>);
+// }
 
 const Title = memo(()=>{
   const AnimatedTitle = Animated.createAnimatedComponent(SVGText);
@@ -64,13 +79,16 @@ const Title = memo(()=>{
       fillOpacity: withSequence(withTiming(0, {duration: 4000}), withTiming((timeline.value - 80)/20, {duration: 1000})),
     });
   });
+  const animatedPropertiesLogIn = useAnimatedProps(()=>{
+    return ({
+      transform: [{translateY: withSequence(withTiming(0, {duration: 5000}), withSpring(100-timeline.value))}],
+      opacity: withSequence(withTiming(0, {duration: 5000}), withTiming(timeline.value/100, {duration: 1000}))
+    });
+  });
 
   useEffect(()=>{
    timeline.value = 100;
-   console.log("rerun")
   }, []);
-
-  console.log(timeline.value);
   return (<>
     <Svg height="100" width="100%">
       <AnimatedTitle
@@ -84,7 +102,7 @@ const Title = memo(()=>{
         textAnchor="middle"
       >Simon Says</AnimatedTitle>
     </Svg>
-    <Text style={{marginBottom: 10}}>Log In</Text>
+    <Animated.Text style={[{marginBottom: 10, position: "relative"}, animatedPropertiesLogIn]}>Log In</Animated.Text>
   </>);
 });
 
@@ -117,29 +135,7 @@ function UserTextInput({placeholder, onChangeText}: TextInputProps): JSX.Element
 }
 
 
-function Background(): JSX.Element{
-  return (<View style={styles.background}>
-    
-  </View>);
-}
-
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
-    width: "90%",
-    height: "60%",
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 10,
-    borderRadius: 20,
-  },
-  background: {
-    position: "absolute", 
-    height: "100%", 
-    width: "100%", 
-    backgroundColor: "cyan", 
-    zIndex:-1
-  },
   inputTextParent: {
     height: 20, 
     justifyContent: "center",
@@ -151,7 +147,6 @@ const styles = StyleSheet.create({
     width: "100%", 
     borderColor: "black", 
     borderWidth: 2,
-    // alignText: "center"
+    textAlign: "center"
   },
-  // button
 });

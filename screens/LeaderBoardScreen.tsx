@@ -4,6 +4,7 @@ import {StackNavigationProp} from "@react-navigation/stack";
 import {RouteProp} from "@react-navigation/native";
 import {navTypes} from "../App";
 import {getTopScorers, PlayerAttributes} from '../Firebase';
+import ScreenLayout, {centerStyle, innerContainerStyle} from "../ScreenLayout";
 
 type Props = {
   navigation: StackNavigationProp<navTypes, "LeaderBoardScreen">,
@@ -15,27 +16,20 @@ export default function LeaderBoardScreen({navigation, route}: Props): JSX.Eleme
   useEffect(function(){
     generateLeaderBoard().then(setLeaderBoard);
   }, []);
-  return (<View style={styles.container}>
-    {leaderBoard}
-    <Button title="Go Back to home" onPress={()=>{navigation.navigate("HomeScreen");}}/>
-  </View>);
+  return (<ScreenLayout>
+    <View style={[centerStyle, innerContainerStyle]}>
+      {leaderBoard}
+      <Button title="Go Back to home" onPress={()=>{navigation.navigate("HomeScreen");}}/>
+    </View>
+  </ScreenLayout>);
 }
 
 async function generateLeaderBoard(): Promise<JSX.Element>{
   const people: PlayerAttributes[] = await getTopScorers(5);
   if(people.length === 0){return (<Text>No Users Available</Text>);}
-  return (<View style={styles.container}>
+  return (<View style={[centerStyle, {height: "50%"}]}>
     {Array.from(people, (v, i)=>(
       <Text key={i}>{i + 1}. {v.username}, Streak: {v.largestStreak}</Text>
     ))}
   </View>);
 }
-
-const styles = StyleSheet.create({
-  container: {
-      flex: 1,
-      backgroundColor: '#ffffff',
-      alignItems: 'center',
-      justifyContent: 'center', 
-  },
-});
