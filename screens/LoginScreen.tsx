@@ -79,12 +79,12 @@ const Title = memo(()=>{
       fillOpacity: withSequence(withTiming(0, {duration: 4000}), withTiming((timeline.value - 80)/20, {duration: 1000})),
     });
   });
-  const animatedPropertiesLogIn = useAnimatedProps(()=>{
-    return ({
-      transform: [{translateY: withSequence(withTiming(0, {duration: 5000}), withSpring(100-timeline.value))}],
-      opacity: withSequence(withTiming(0, {duration: 5000}), withTiming(timeline.value/100, {duration: 1000}))
-    });
-  });
+  // const animatedPropertiesLogIn = useAnimatedProps(()=>{
+  //   return ({
+  //     transform: [{translateY: withSequence(withTiming(0, {duration: 5000}), withSpring(100-timeline.value))}],
+  //     opacity: withSequence(withTiming(0, {duration: 5000}), withTiming(timeline.value/100, {duration: 1000}))
+  //   });
+  // });
 
   useEffect(()=>{
    timeline.value = 100;
@@ -102,7 +102,7 @@ const Title = memo(()=>{
         textAnchor="middle"
       >Simon Says</AnimatedTitle>
     </Svg>
-    <Animated.Text style={[{marginBottom: 10, position: "relative"}, animatedPropertiesLogIn]}>Log In</Animated.Text>
+    <Animated.Text style={[{marginBottom: 10, position: "relative"}]}>Log In</Animated.Text>
   </>);
 });
 

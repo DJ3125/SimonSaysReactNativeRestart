@@ -2,6 +2,7 @@ import { StyleSheet, View, Text, Button} from 'react-native';
 import {useState, useEffect, JSX} from "react";
 import {StackNavigationProp} from "@react-navigation/stack";
 import {RouteProp} from "@react-navigation/native";
+import Svg, {Text as SVGText} from "react-native-svg";
 import {navTypes} from "../App";
 import {getTopScorers, PlayerAttributes} from '../Firebase';
 import ScreenLayout, {centerStyle, innerContainerStyle} from "../ScreenLayout";
@@ -18,6 +19,11 @@ export default function LeaderBoardScreen({navigation, route}: Props): JSX.Eleme
   }, []);
   return (<ScreenLayout>
     <View style={[centerStyle, innerContainerStyle]}>
+      <Svg width="100%" height="30%">
+        <SVGText x="50%" y="50%" textAnchor="middle" stroke="purple" fontSize="35" fontWeight="bold">
+          LeaderBoard
+        </SVGText>
+      </Svg>
       {leaderBoard}
       <Button title="Go Back to home" onPress={()=>{navigation.navigate("HomeScreen");}}/>
     </View>

@@ -87,12 +87,12 @@ function updateAttributes<T extends keyof PlayerAttributes>(...pairs: attributeV
   updateDoc(doc(database, collectionName, userDoc.docReference), {
     userID: userID,
     largestStreak: largestStreak,
-    userDoc: userDoc
+    username: username
   }).catch(function(error){console.log(error.message);});
 }
 
 export async function getTopScorers(numMax: number): Promise<PlayerAttributes[]>{
-  const {docs}: QuerySnapshot = await getDocs(query(collection(database, collectionName), orderBy("largestStreak"), limit(numMax)));
+  const {docs}: QuerySnapshot = await getDocs(query(collection(database, collectionName), orderBy("largestStreak", "desc"), limit(numMax)));
   const array: PlayerAttributes[] = [];
   for(let i = 0; i < docs.length; i++){
     array.push(parseDoc(docs[i]));
